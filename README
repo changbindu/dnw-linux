@@ -1,0 +1,23 @@
+**************This code is based on the code from internet,
+**************but I do not know where it from. If it's yours
+**************and think I have damaged your interests, please
+**************let me know. 
+**************contact: Du, Changbin <changbin.du@gmail.com>
+
+1. build and install
+=====================
+	$ make
+	$ sudo make install
+
+2. dnw tool usage 
+=====================
+connect board to PC and open minicom. When see log "USB host is connected. Waiting a download",
+you can download file to board by follow command:
+	$ sudo dnw <file_to_download>
+
+If above doesn't work, pls check if you can see bellow message in `dmesg`.
+	[ 283.677772] usb 1-1: new full speed USB device using uhci_hcd and address 2
+	[ 284.084835] usb 1-1: configuration #1 chosen from 1 choice
+	[ 284.140430] secbulk:secbulk probing...
+	[ 284.140482] secbulk:bulk out endpoint found!
+
