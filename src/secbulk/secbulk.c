@@ -23,7 +23,7 @@ struct secbulk_dev
 static struct usb_class_driver secbulk_class;
 
 static struct usb_device_id secbulk_table[]= {
-	{ USB_DEVICE(0x5345, 0x1234)},
+	{ USB_DEVICE(0x5345, 0x1234) },
 	{ }
 };
 
@@ -39,12 +39,14 @@ static void secbulk_disconnect(struct usb_interface *interface)
 	return;
 }
 
-static ssize_t secbulk_read(struct file *file, char __user *buf, size_t len, loff_t *loff)
+static ssize_t secbulk_read(struct file *file, char __user *buf, size_t len,
+	loff_t *loff)
 {
 	return -EPERM;
 }
 
-static ssize_t secbulk_write(struct file *file, const char __user *buf, size_t len, loff_t *loff)
+static ssize_t secbulk_write(struct file *file, const char __user *buf,
+	size_t len, loff_t *loff)
 {
 	size_t to_write;
 	struct secbulk_dev *dev = file->private_data;
@@ -53,23 +55,22 @@ static ssize_t secbulk_write(struct file *file, const char __user *buf, size_t l
 	size_t total_writed;
 	
 	total_writed = 0;
-	while(len > 0)
-	{
+	while(len > 0) {
 		to_write = min(len, BULKOUT_BUFFER_SIZE);
 	
-		if(copy_from_user(dev->bulkout_buffer, buf+total_writed, to_write))
-		{
+		if(copy_from_user(dev->bulkout_buffer, buf+total_writed,
+				to_write)) {
 			printk(KERN_ERR "secbulk:copy_from_user failed!\n");
 			return -EFAULT;	
 		}	
 
-		ret = usb_bulk_msg(dev->udev, usb_sndbulkpipe(dev->udev, dev->bulk_out_endpointAddr),
+		ret = usb_bulk_msg(dev->udev,
+				usb_sndbulkpipe(dev->udev, dev->bulk_out_endpointAddr),
 				dev->bulkout_buffer,
 				to_write,
 				&actual_length,
 				3*HZ);
-		if(ret || actual_length!=to_write)
-		{	
+		if(ret || actual_length!=to_write) {
 			printk(KERN_ERR "secbulk:usb_bulk_msg failed!\n");
 			return -EFAULT;
 		}	
@@ -95,6 +96,7 @@ static int secbulk_open(struct inode *node, struct file *file)
 	if(!mutex_trylock(&dev->io_mutex))
 		return -EBUSY;
 	file->private_data = dev;
+
 	return 0;
 }
 
@@ -133,34 +135,29 @@ static int secbulk_probe(struct usb_interface *interface, const struct usb_devic
 	printk(KERN_INFO "secbulk:secbulk probing...\n");
 	
 	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
-	if(!dev)
-	{
+	if(!dev) {
 		ret = -ENOMEM;
 		goto error;
 	}	
 
 	iface_desc = interface->cur_altsetting;
-	for(i=0; i < iface_desc->desc.bNumEndpoints; i++)
-	{
+	for(i=0; i < iface_desc->desc.bNumEndpoints; i++) {
 		endpoint = &(iface_desc->endpoint[i].desc);
 		if(!dev->bulk_out_endpointAddr
-		&& usb_endpoint_is_bulk_out(endpoint))
-		{
+		&& usb_endpoint_is_bulk_out(endpoint)) {
 			printk(KERN_INFO "secbulk:bulk out endpoint found!\n");
 			dev->bulk_out_endpointAddr = endpoint->bEndpointAddress;
 			break;
 		}
 	}
 	
-	if(!(dev->bulk_out_endpointAddr))
-	{
+	if(!(dev->bulk_out_endpointAddr)) {
 		ret = -EBUSY;
 		goto error;
 	}
 
 	ret = usb_register_dev(interface, &secbulk_class);
-	if(ret)
-	{
+	if(ret) {
 		printk(KERN_ERR "secbulk: usb_register_dev failed!\n");
 		return ret;
 	}		
@@ -188,8 +185,8 @@ static int __init secbulk_init(void)
 	int result;
 	printk(KERN_INFO "secbulk:secbulk loaded\n");
 	result = usb_register(&secbulk_driver);
-	if(result)
-	{	printk(KERN_ERR "secbulk:usb_register failed: %d", result);
+	if(result) {
+		printk(KERN_ERR "secbulk:usb_register failed: %d", result);
 		return result;
 	}		
 	return 0;
@@ -204,3 +201,4 @@ static void __exit secbulk_exit(void)
 module_init(secbulk_init);
 module_exit(secbulk_exit);
 MODULE_LICENSE("GPL");
+
