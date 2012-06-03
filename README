@@ -25,15 +25,15 @@ Note: If your board isn't FL Ok6410, please set right load-address via "a" optio
       it to nand via U-Boot "nand" command.
 
 If above doesn't work, pls check if you can see bellow message in `dmesg`.
-	[ 283.677772] usb 1-1: new full speed USB device using uhci_hcd and address 2
-	[ 284.084835] usb 1-1: configuration #1 chosen from 1 choice
-	[ 284.140430] secbulk:secbulk probing...
-	[ 284.140482] secbulk:bulk out endpoint found!
+	usb 1-1: new full speed USB device using uhci_hcd and address 2
+	usb 1-1: configuration #1 chosen from 1 choice
+	secbulk:secbulk probing...
+	secbulk:bulk out endpoint found!
 
 ===============================================
 some U-Boot commands special for FL Ok6410
    (1) download U-Boot
-	$dnw 50008000
+	$dnw 50008000  #default address is 0xc0000000
 	$nand erase 0 100000
 	$nand write.uboot 50008000 0 100000
    (2) download kernel
