@@ -14,6 +14,8 @@ dnw:
 install:
 	make -C $(dnw_src) install
 	make -C /lib/modules/`uname -r`/build M=$(secbulk_src) modules_install
+	cp dnw.rules /etc/udev/rules.d/
+	depmod
 
 clean:
 	make -C $(dnw_src) clean
