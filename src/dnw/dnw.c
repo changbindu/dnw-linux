@@ -84,9 +84,8 @@ static int download_file(const char *path, unsigned long load_addr)
 
 	buffer->load_addr = load_addr;
 	buffer->size = total_size;
-#if 0
 	cal_and_set_checksum(buffer);
-#endif
+
 	return _download_buffer(buffer);
 
 error:
@@ -122,7 +121,7 @@ usage:
 		goto usage;
 
 	printf("load address: 0x%08X\n", load_addr);
-	if (download_file(argv[1], 0x32000000) != 0) {
+	if (download_file(argv[1], load_addr) != 0) {
 		return -1;
 	}
 
