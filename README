@@ -21,10 +21,41 @@ Now, you can download your file to board by follow command on PC end:
 	$ sudo dnw <file_to_download>
 
 Note: If your board isn't FL Ok6410, please set right load-address via "a" option.
+      Above steps have only download file to board's RAM, so you need  update
+      it to nand via U-Boot "nand" command.
 
 If above doesn't work, pls check if you can see bellow message in `dmesg`.
 	[ 283.677772] usb 1-1: new full speed USB device using uhci_hcd and address 2
 	[ 284.084835] usb 1-1: configuration #1 chosen from 1 choice
 	[ 284.140430] secbulk:secbulk probing...
 	[ 284.140482] secbulk:bulk out endpoint found!
+
+===============================================
+some U-Boot commands special for FL Ok6410
+   (1) download U-Boot
+	$dnw 50008000
+	$nand erase 0 100000
+	$nand write.uboot 50008000 0 100000
+   (2) download kernel
+	$dnw 50008000
+	$nand erase 100000 500000
+	$nand write.e 50008000 100000 500000
+   (3) download yaffs2 root file system
+	$dnw 50008000
+	$nand erase 600000 #erase mtdblock2 partition
+	$nand write.yaffs2 50008000 600000 <rootfs image size>
+   (4) deal with bad blocks
+	$nand scrub
+   (5) set kernel arguments
+	$setenv bootargs "root=/dev/mtdblock2 rootfstype=yaffs2 console=ttySAC0,115200 lcdsize=35" 
+	$saveenv
+	$reset
+	Depends on your lcd module, lcdsize could be 35, 44, 56, 70, VGA800 or XGA1024.
+   (6) boot from NFS
+	$setenv bootargs "root=/dev/nfs nfsroot=192.168.0.231:/FileSystem-Yaffs2 \
+	 ip=192.168.0.232:192.168.0.231:192.168.0.201:255.255.255.0:8.8.8.8:eth0:off \
+	 console=ttySAC0,115200"
+	$saveenv
+	# "192.168.0.231" is your host ip; "192.168.0.232" is your board's ip;
+	  "192.168.0.201" is gateway; "255.255.255.0" is mask.
 
