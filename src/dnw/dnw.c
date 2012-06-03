@@ -8,6 +8,7 @@
 #include <stdint.h>
 
 const char* dev = "/dev/secbulk0";
+#define BLOCK_SIZE	(1*1024*1024)
 
 struct download_buffer {
 	uint32_t	load_addr;  /* load address */
@@ -19,23 +20,27 @@ struct download_buffer {
 static int _download_buffer(struct download_buffer *buf)
 {
 	int fd_dev = open(dev, O_WRONLY);
-	if( -1 == fd_dev)
+	if( -1 == fd_dev) {
 		printf("Can not open %s\n", dev);
+		return -1;
+	}
 
 	printf("Writing data...\n");
 	size_t remain_size = buf->size;
-	size_t block_size = remain_size / 100;
+	size_t block_size = BLOCK_SIZE;
 	size_t writed = 0;
 	while(remain_size>0) {
 		size_t to_write = remain_size > block_size ? block_size : remain_size;
 		if( to_write != write(fd_dev, (unsigned char*)buf + writed, to_write)) {
-			printf("failed!\n");
+			perror("write failed");
 			close(fd_dev);
 			return -1;
 		}
 		remain_size -= to_write;
 		writed += to_write;
-		printf("\r%u%%\t %u bytes", writed*100/(buf->size), writed);
+		printf("\r%02u%%\t0x%08X bytes (%d K)",
+			(unsigned)((uint64_t)writed*100/(buf->size)),
+			writed, writed/1024);
 		fflush(stdout);
 	}
 	close(fd_dev);
@@ -51,6 +56,18 @@ static inline void cal_and_set_checksum(struct download_buffer *buf)
 		sum += buf->data[i];
 	}
 	*((uint16_t*)(&((uint8_t*)buf)[buf->size - 2])) = sum;
+}
+
+static struct download_buffer* alloc_buffer(size_t data_size)
+{
+	struct download_buffer	*buffer = NULL;
+	size_t total_size = data_size + sizeof(struct download_buffer) + 2;
+
+	buffer = (typeof(buffer))malloc(total_size);
+	if(NULL == buffer)
+		return NULL;
+	buffer->size = total_size;
+	return buffer;
 }
 
 static int download_file(const char *path, unsigned long load_addr)
@@ -70,9 +87,8 @@ static int download_file(const char *path, unsigned long load_addr)
 		printf("Get file size filed!\n");
 		goto error;
 	}	
-	
-	total_size = file_stat.st_size + sizeof(struct download_buffer) + 2;
-	buffer = (typeof(buffer))malloc(total_size);
+
+	buffer = alloc_buffer(file_stat.st_size);
 	if(NULL == buffer) {
 		printf("malloc failed!\n");
 		goto error;
@@ -83,7 +99,6 @@ static int download_file(const char *path, unsigned long load_addr)
 	}
 
 	buffer->load_addr = load_addr;
-	buffer->size = total_size;
 	cal_and_set_checksum(buffer);
 
 	return _download_buffer(buffer);
@@ -125,7 +140,7 @@ usage:
 		return -1;
 	}
 
-	printf("OK\n");
+	printf("\nOK\n");
 	return 0;
 }
 
