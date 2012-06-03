@@ -23,7 +23,8 @@ struct secbulk_dev
 static struct usb_class_driver secbulk_class;
 
 static struct usb_device_id secbulk_table[]= {
-	{ USB_DEVICE(0x5345, 0x1234) },
+	{ USB_DEVICE(0x5345, 0x1234) }, /* FS2410 */
+	{ USB_DEVICE(0x04e8, 0x1234) }, /* EZ6410 */
 	{ }
 };
 
