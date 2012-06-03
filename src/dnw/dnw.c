@@ -5,13 +5,15 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <stdint.h>
 
 const char* dev = "/dev/secbulk0";
 
 struct download_buffer {
-	unsigned long load_addr;  /* load address */
-	unsigned long size; /* data size */
-	unsigned char data[0];
+	uint32_t	load_addr;  /* load address */
+	uint32_t	size; /* data size */
+	uint8_t		data[0];
+	/* uint16_t checksum; */
 };
 
 static int _download_buffer(struct download_buffer *buf)
@@ -33,11 +35,22 @@ static int _download_buffer(struct download_buffer *buf)
 		}
 		remain_size -= to_write;
 		writed += to_write;
-		printf("\r%lu%%\t %u bytes", writed*100/(buf->size), writed);
+		printf("\r%u%%\t %u bytes", writed*100/(buf->size), writed);
 		fflush(stdout);
 	}
 	close(fd_dev);
 	return 0;
+}
+
+static inline void cal_and_set_checksum(struct download_buffer *buf)
+{
+	uint16_t sum = 0;
+	int i;
+
+	for(i = 0; i < buf->size; i++) {
+		sum += buf->data[i];
+	}
+	*((uint16_t*)(&((uint8_t*)buf)[buf->size - 2])) = sum;
 }
 
 static int download_file(const char *path, unsigned long load_addr)
@@ -72,11 +85,7 @@ static int download_file(const char *path, unsigned long load_addr)
 	buffer->load_addr = load_addr;
 	buffer->size = total_size;
 #if 0
-	unsigned short sum = 0;
-	int i;
-	for(i=0; i<file_stat.st_size; i++) {
-		sum += buffer->data[i];
-	}
+	cal_and_set_checksum(buffer);
 #endif
 	return _download_buffer(buffer);
 
