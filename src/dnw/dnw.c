@@ -99,11 +99,29 @@ error:
 
 int main(int argc, char* argv[])
 {
-	if( 2 != argc )	{
-		printf("Usage: dwn <filename>\n");
+	unsigned load_addr = 0x57e00000;
+	char* path = NULL;
+	int	c;
+
+	while ((c = getopt (argc, argv, "a:h")) != EOF)
+	switch (c) {
+	case 'a':
+		load_addr = strtol(optarg, NULL, 16);
+		continue;
+	case '?':
+	case 'h':
+	default:
+usage:
+		printf("Usage: dwn [-a load_addr] <filename>\n");
+		printf("Default load address: 0x57e00000\n");
 		return 1;
 	}
+	if (optind < argc)
+		path = argv[optind];
+	else
+		goto usage;
 
+	printf("load address: 0x%08X\n", load_addr);
 	if (download_file(argv[1], 0x32000000) != 0) {
 		return -1;
 	}
