@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <malloc.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -21,7 +23,7 @@ static int _download_buffer(struct download_buffer *buf)
 {
 	int fd_dev = open(dev, O_WRONLY);
 	if( -1 == fd_dev) {
-		printf("Can not open %s\n", dev);
+		printf("Can not open %s: %s\n", dev, strerror(errno));
 		return -1;
 	}
 
@@ -79,22 +81,22 @@ static int download_file(const char *path, unsigned long load_addr)
 
 	fd = open(path, O_RDONLY);
 	if(-1 == fd) {
-		printf("Can not open file - %s\n", path);
+		printf("Can not open file %s: %s\n", path, strerror(errno));
 		return -1;
 	}
 
 	if( -1 == fstat(fd, &file_stat) ) {
-		printf("Get file size filed!\n");
+		perror("Get file size filed!\n");
 		goto error;
 	}	
 
 	buffer = alloc_buffer(file_stat.st_size);
 	if(NULL == buffer) {
-		printf("malloc failed!\n");
+		perror("malloc failed!\n");
 		goto error;
 	}
 	if( file_stat.st_size !=  read(fd, buffer->data, file_stat.st_size)) {
-		printf("Read file failed!\n");
+		perror("Read file failed!\n");
 		goto error;
 	}
 
