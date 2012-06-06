@@ -33,17 +33,24 @@ If above doesn't work, pls check if you can see bellow message in `dmesg`.
 ===============================================
 some U-Boot commands special for FL Ok6410
    (1) download U-Boot
-	$dnw 50008000  #default address is 0xc0000000
+	$dnw 50008000
 	$nand erase 0 100000
 	$nand write.uboot 50008000 0 100000
+	#dnw default load address is 0xc0000000
+	all in one:
+	$dnw 50008000 && nand erase 0 100000 && nand write.uboot 50008000 0 100000
    (2) download kernel
 	$dnw 50008000
 	$nand erase 100000 500000
 	$nand write.e 50008000 100000 500000
+	all in one:
+	$dnw 50008000 && nand erase 100000 500000 && nand write.e 50008000 100000 500000
    (3) download yaffs2 root file system
 	$dnw 50008000
 	$nand erase 600000 #erase mtdblock2 partition
 	$nand write.yaffs2 50008000 600000 <rootfs image size>
+	all in one:
+	$dnw 50008000 && nand erase 600000 && nand write.yaffs2 50008000 600000 <rootfs image size>
    (4) deal with bad blocks
 	$nand scrub
    (5) set kernel arguments
