@@ -48,15 +48,15 @@ some U-Boot commands special for FL Ok6410
    (3) download yaffs2 root file system
 	$dnw 50008000
 	$nand erase 600000 #erase mtdblock2 partition
-	$nand write.yaffs2 50008000 600000 <rootfs image size>
+	$nand write.yaffs2 50008000 600000 8000000 #instead 8000000 of real image size
 	all in one:
-	$dnw 50008000 && nand erase 600000 && nand write.yaffs2 50008000 600000 <rootfs image size>
+	$dnw 50008000 && nand erase 600000 && nand write.yaffs2 50008000 600000 8000000
    (4) download ubifs root file system
 	$dnw 50008000
 	$nand erase 600000 #erase mtdblock2 partition
-	$nand write.e 50008000 600000 <rootfs image size>
+	$nand write.e 50008000 600000 8000000 #instead 8000000 of real image size
 	all in one:
-	$dnw 50008000 && nand erase 600000 && nand write.e 50008000 600000 <rootfs image size>
+	$dnw 50008000 && nand erase 600000 && nand write.e 50008000 600000 8000000
    (5) deal with bad blocks
 	$nand scrub
    (6) set kernel arguments
