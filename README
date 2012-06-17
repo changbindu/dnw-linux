@@ -51,20 +51,26 @@ some U-Boot commands special for FL Ok6410
 	$nand write.yaffs2 50008000 600000 8000000 #instead 8000000 of real image size
 	all in one:
 	$dnw 50008000 && nand erase 600000 && nand write.yaffs2 50008000 600000 8000000
-   (4) download ubifs root file system
+   (4) download ubifs/cramfs root file system
 	$dnw 50008000
 	$nand erase 600000 #erase mtdblock2 partition
 	$nand write.e 50008000 600000 8000000 #instead 8000000 of real image size
 	all in one:
 	$dnw 50008000 && nand erase 600000 && nand write.e 50008000 600000 8000000
-   (5) deal with bad blocks
+   (5) download jffs2 root file system
+	$dnw 50008000
+	$nand erase 600000 #erase mtdblock2 partition
+	$nand write.jffs2 50008000 600000 8000000 #instead 8000000 of real image size
+	all in one:
+	$dnw 50008000 && nand erase 600000 && nand write.jffs2 50008000 600000 8000000
+   (6) deal with bad blocks
 	$nand scrub
-   (6) set kernel arguments
+   (7) set kernel arguments
 	$setenv bootargs "root=/dev/mtdblock2 rootfstype=yaffs2 console=ttySAC0,115200 lcdsize=35" 
 	$saveenv
 	$reset
 	Depends on your lcd module, lcdsize could be 35, 44, 56, 70, VGA800 or XGA1024.
-   (7) boot from NFS
+   (8) boot from NFS
 	$setenv bootargs "root=/dev/nfs nfsroot=192.168.0.231:/FileSystem-Yaffs2 \
 	 ip=192.168.0.232:192.168.0.231:192.168.0.201:255.255.255.0:8.8.8.8:eth0:off \
 	 console=ttySAC0,115200"
