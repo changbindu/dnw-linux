@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdint.h>
@@ -45,6 +46,7 @@ static int _download_buffer(struct download_buffer *buf)
 			writed, writed/1024);
 		fflush(stdout);
 	}
+	printf("\n");
 	close(fd_dev);
 	return 0;
 }
@@ -72,7 +74,12 @@ static struct download_buffer* alloc_buffer(size_t data_size)
 	return buffer;
 }
 
-static int download_file(const char *path, unsigned long load_addr)
+static void free_buffer(struct download_buffer *buf)
+{
+	free(buf);
+}
+
+static struct download_buffer *load_file(const char *path, unsigned long load_addr)
 {
 	struct stat		file_stat;
 	struct download_buffer	*buffer = NULL;
@@ -82,7 +89,7 @@ static int download_file(const char *path, unsigned long load_addr)
 	fd = open(path, O_RDONLY);
 	if(-1 == fd) {
 		printf("Can not open file %s: %s\n", path, strerror(errno));
-		return -1;
+		return NULL;
 	}
 
 	if( -1 == fstat(fd, &file_stat) ) {
@@ -103,14 +110,39 @@ static int download_file(const char *path, unsigned long load_addr)
 	buffer->load_addr = load_addr;
 	cal_and_set_checksum(buffer);
 
-	return _download_buffer(buffer);
+	return buffer;
 
 error:
 	if(fd != -1)
 		close(fd);
 	if( NULL != buffer )
 		free(buffer);
-	return -1;
+	return NULL;
+}
+
+static int download_file(const char *path, unsigned long load_addr)
+{
+	struct download_buffer *buffer;
+	struct timeval __start, __end;
+	long __time_val = 0;
+	float speed = 0.0;
+
+	buffer = load_file(path, load_addr);
+	gettimeofday(&__start,NULL);
+	if (buffer != NULL) {
+		if (_download_buffer(buffer) == 0) {
+			gettimeofday(&__end,NULL);
+			__time_val = (long)(__end.tv_usec - __start.tv_usec)/1000 + \
+				(long)(__end.tv_sec - __start.tv_sec) * 1000;
+			speed = (float)buffer->size/__time_val/(1024*1024) * 1000;
+			printf("speed: %fM/S\n",speed);
+			free_buffer(buffer);
+		} else {
+			free_buffer(buffer);
+			return -1;
+		}
+	} else
+		return -1;
 }
 
 int main(int argc, char* argv[])
@@ -142,7 +174,6 @@ usage:
 		return -1;
 	}
 
-	printf("\nOK\n");
 	return 0;
 }
 
