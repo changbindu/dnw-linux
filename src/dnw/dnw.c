@@ -41,9 +41,10 @@ static int _download_buffer(struct download_buffer *buf)
 		}
 		remain_size -= to_write;
 		writed += to_write;
-		printf("\r%02u%%\t0x%08X bytes (%d K)",
-			(unsigned)((uint64_t)writed*100/(buf->size)),
-			writed, writed/1024);
+		printf("\r%02zu%%\t0x%08zX bytes (%zu K)",
+			(size_t)((uint64_t)writed*100/(buf->size)),
+			writed,
+			writed/1024);
 		fflush(stdout);
 	}
 	printf("\n");
