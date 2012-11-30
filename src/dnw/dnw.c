@@ -170,7 +170,7 @@ usage:
 		goto usage;
 
 	printf("load address: 0x%08X\n", load_addr);
-	if (download_file(argv[1], load_addr) != 0) {
+	if (download_file(path, load_addr) != 0) {
 		return -1;
 	}
 
