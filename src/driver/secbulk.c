@@ -10,7 +10,7 @@
 #define SECBULK_MINOR	0
 #define DRIVER_NAME	"secbulk"
 
-#define BULKOUT_BUFFER_SIZE	512
+#define BULKOUT_BUFFER_SIZE	(4*1024)
 
 struct secbulk_dev
 {
