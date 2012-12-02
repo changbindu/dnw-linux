@@ -1,23 +1,23 @@
 # author: Du, Changbin <changbin.du@gmail.com>
 
-secbulk_src = `pwd`/src/secbulk
+driver_src = `pwd`/src/driver
 dnw_src = src/dnw
 
-all: secbulk dnw
+all: driver dnw
 
-secbulk:
-	make -C /lib/modules/`uname -r`/build M=$(secbulk_src) modules
+driver:
+	make -C /lib/modules/`uname -r`/build M=$(driver_src) modules
 
 dnw:
 	make -C $(dnw_src)
 
 install: all
 	make -C $(dnw_src) install
-	make -C /lib/modules/`uname -r`/build M=$(secbulk_src) modules_install
+	make -C /lib/modules/`uname -r`/build M=$(driver_src) modules_install
 	cp dnw.rules /etc/udev/rules.d/
 	depmod
 
 clean:
 	make -C $(dnw_src) clean
-	make -C /lib/modules/`uname -r`/build M=$(secbulk_src) clean
+	make -C /lib/modules/`uname -r`/build M=$(driver_src) clean
 
