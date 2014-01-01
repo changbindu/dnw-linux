@@ -1,7 +1,4 @@
-**************This code is based on the code from internet,
-**************but I do not know where it is from. If it's yours
-**************and think I have damaged your interests, please
-**************let me know. 
+**************This code is based on the code from internet.
 **************contact: Du, Changbin <changbin.du@gmail.com>
 
 1. build and install
@@ -66,14 +63,23 @@ some U-Boot commands special for FL Ok6410
    (6) deal with bad blocks
 	$nand scrub
    (7) set kernel arguments
-	$setenv bootargs "root=/dev/mtdblock2 rootfstype=yaffs2 console=ttySAC0,115200" 
-	$save
-	$reset
-   (8) boot from NFS
-	$setenv bootargs "root=/dev/nfs nfsroot=192.168.0.231:/FileSystem-Yaffs2 \
-	 ip=192.168.0.232:192.168.0.231:192.168.0.201:255.255.255.0:8.8.8.8:eth0:off \
-	 console=ttySAC0,115200"
-	$save
-	# "192.168.0.231" is your host ip; "192.168.0.232" is your board's ip;
-	# "192.168.0.201" is gateway; "255.255.255.0" is mask.
+	To boot using ubi image:
+		$setenv bootargs console=ttySAC0,115200 ubi.mtd=rootfs root=ubi0:rootfs rootfstype=ubifs rw init=/linuxrc debug
+		$save
+		$reset
+	To boot using cramfs image:
+		$setenv bootargs console=ttySAC0,115200 root=/dev/mtdblock2 rootfstype=cramfs init=/linuxrc debug
+		$save
+		$reset
+	To boot using yaffs2 image:
+		$setenv bootargs "root=/dev/mtdblock2 rootfstype=yaffs2 console=ttySAC0,115200" 
+		$save
+		$reset
+        To boot from NFS
+		$setenv bootargs "root=/dev/nfs nfsroot=192.168.0.231:/FileSystem-Yaffs2 \
+		 ip=192.168.0.232:192.168.0.231:192.168.0.201:255.255.255.0:8.8.8.8:eth0:off \
+		 console=ttySAC0,115200"
+		$save
+		# "192.168.0.231" is your host ip; "192.168.0.232" is your board's ip;
+		# "192.168.0.201" is gateway; "255.255.255.0" is mask.
 
